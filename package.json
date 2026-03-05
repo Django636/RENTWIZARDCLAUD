@@ -1,1 +1,0 @@
-{\n  "name": "rentwizardclaud",\n  "private": true,\n  "workspaces": [\n    "apps/api",\n    "apps/web",\n    "apps/mobile",\n    "packages/core",\n    "packages/ui",\n    "packages/api-client"\n  ],\n  "devDependencies": {\n    "turbo": "^1.0.0"\n  }\n}
