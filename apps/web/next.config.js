@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@rentwizard/core', '@rentwizard/ui', '@rentwizard/api-client'],
-  experimental: { serverActions: { enabled: true } },
+  reactStrictMode: true,
+  swcMinify: true,
+  transpilePackages: ['@rentwizard/core', '@rentwizard/api-client', '@rentwizard/ui'],
 };
+
 module.exports = nextConfig;
