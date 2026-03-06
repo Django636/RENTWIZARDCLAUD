@@ -1,0 +1,16 @@
+{
+  "name": "@rentwizard/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'no linter configured'",
+    "test": "echo 'no tests yet'",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": { "@rentwizard/core": "*" },
+  "devDependencies": { "typescript": "^5.6.0" }
+}

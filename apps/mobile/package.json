@@ -1,0 +1,42 @@
+{
+  "name": "@rentwizard/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "build": "echo 'mobile build via EAS'",
+    "build:android": "expo build:android",
+    "build:ios": "expo build:ios",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'no linter configured'",
+    "test": "echo 'no tests yet'",
+    "clean": "rm -rf .expo .turbo"
+  },
+  "dependencies": {
+    "expo": "~52.0.0",
+    "expo-camera": "~16.0.0",
+    "expo-file-system": "~18.0.0",
+    "expo-image-picker": "~16.0.0",
+    "expo-router": "~4.0.0",
+    "react": "^18.3.0",
+    "react-native": "^0.76.0",
+    "react-native-reanimated": "~3.16.0",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/bottom-tabs": "^7.0.0",
+    "@react-navigation/native-stack": "^7.0.0",
+    "@tanstack/react-query": "^5.60.0",
+    "jotai": "^2.10.0",
+    "zod": "^3.23.0",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-native-community/netinfo": "^11.4.0",
+    "socket.io-client": "^4.8.0",
+    "nativewind": "^4.1.0",
+    "@rentwizard/core": "*",
+    "@rentwizard/api-client": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.6.0"
+  }
+}

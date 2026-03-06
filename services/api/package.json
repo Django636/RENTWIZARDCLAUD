@@ -1,0 +1,53 @@
+{
+  "name": "@rentwizard/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "start": "node dist/main.js",
+    "start:prod": "node dist/main.js",
+    "lint": "echo 'no linter configured'",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests",
+    "test:e2e": "jest --config jest-e2e.json --passWithNoTests",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.4.0",
+    "@nestjs/core": "^10.4.0",
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.0",
+    "@nestjs/platform-express": "^10.4.0",
+    "@nestjs/platform-socket.io": "^10.4.0",
+    "@nestjs/swagger": "^7.4.0",
+    "@nestjs/throttler": "^6.2.0",
+    "@nestjs/websockets": "^10.4.0",
+    "@nestjs/bullmq": "^10.2.0",
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/s3-request-presigner": "^3.700.0",
+    "@prisma/client": "^6.1.0",
+    "@rentwizard/core": "*",
+    "bcrypt": "^5.1.0",
+    "bullmq": "^5.25.0",
+    "helmet": "^8.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.4.0",
+    "@nestjs/testing": "^10.4.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/express": "^5.0.0",
+    "@types/passport-jwt": "^4.0.0",
+    "@types/supertest": "^6.0.0",
+    "supertest": "^7.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "typescript": "^5.6.0"
+  }
+}

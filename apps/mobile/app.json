@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "RentWizard",
+    "slug": "rentwizard",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "rentwizard",
+    "splash": { "backgroundColor": "#1e3a5f" },
+    "ios": { "bundleIdentifier": "com.rentwizard.app" },
+    "android": { "package": "com.rentwizard.app" },
+    "plugins": ["expo-camera", "expo-image-picker"]
+  }
+}

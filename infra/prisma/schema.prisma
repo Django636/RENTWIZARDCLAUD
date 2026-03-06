@@ -1,0 +1,272 @@
+// ──────────────────────────────────────────────────────────────
+// RentWizard – Prisma Schema
+// infra/prisma/schema.prisma
+// ──────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──
+
+enum UserRole {
+  OWNER
+  MANAGER
+  TENANT
+  CONTRACTOR
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_PARTS
+  ESCALATED
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketCategory {
+  PLUMBING
+  ELECTRICAL
+  HVAC
+  STRUCTURAL
+  APPLIANCE
+  PEST_CONTROL
+  CLEANING
+  SECURITY
+  OTHER
+}
+
+enum DocumentType {
+  LEASE
+  INVOICE
+  INSPECTION_REPORT
+  INSURANCE
+  PERMIT
+  PHOTO
+  RECEIPT
+  OTHER
+}
+
+// ── Models ──
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  phone        String?
+  avatarUrl    String?  @map("avatar_url")
+  role         UserRole
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  ownedProperties  Property[]
+  managedProperties PropertyManager[]
+  unitTenancies    UnitTenant[]
+  reportedTickets  Ticket[]           @relation("TicketReporter")
+  ticketComments   TicketComment[]
+  assignments      TicketAssignment[] @relation("ContractorAssignment")
+  uploadedDocuments Document[]
+  refreshTokens    RefreshToken[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Property {
+  id        String   @id @default(cuid())
+  ownerId   String   @map("owner_id")
+  name      String
+  street    String
+  city      String
+  state     String
+  zipCode   String   @map("zip_code")
+  country   String   @default("DE")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  owner     User               @relation(fields: [ownerId], references: [id])
+  units     Unit[]
+  documents Document[]
+  managers  PropertyManager[]
+
+  @@index([ownerId])
+  @@map("properties")
+}
+
+model PropertyManager {
+  id         String   @id @default(cuid())
+  propertyId String   @map("property_id")
+  userId     String   @map("user_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@unique([propertyId, userId])
+  @@map("property_managers")
+}
+
+model Unit {
+  id         String   @id @default(cuid())
+  propertyId String   @map("property_id")
+  unitNumber String   @map("unit_number")
+  floor      Int?
+  rooms      Int?
+  area       Float?
+  rentAmount Float?   @map("rent_amount")
+  isOccupied Boolean  @default(false) @map("is_occupied")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  property Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenants  UnitTenant[]
+  tickets  Ticket[]
+
+  @@unique([propertyId, unitNumber])
+  @@index([propertyId])
+  @@map("units")
+}
+
+model UnitTenant {
+  id        String    @id @default(cuid())
+  unitId    String    @map("unit_id")
+  userId    String    @map("user_id")
+  isActive  Boolean   @default(true) @map("is_active")
+  moveIn    DateTime  @map("move_in")
+  moveOut   DateTime? @map("move_out")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  unit Unit @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([unitId, isActive])
+  @@index([userId])
+  @@map("unit_tenants")
+}
+
+model Ticket {
+  id                 String         @id @default(cuid())
+  unitId             String         @map("unit_id")
+  reporterId         String         @map("reporter_id")
+  title              String
+  description        String
+  category           TicketCategory
+  priority           TicketPriority @default(MEDIUM)
+  status             TicketStatus   @default(OPEN)
+  slaAckDeadline     DateTime?      @map("sla_ack_deadline")
+  slaResolveDeadline DateTime?      @map("sla_resolve_deadline")
+  escalated          Boolean        @default(false)
+  resolvedAt         DateTime?      @map("resolved_at")
+  closedAt           DateTime?      @map("closed_at")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  unit        Unit               @relation(fields: [unitId], references: [id])
+  reporter    User               @relation("TicketReporter", fields: [reporterId], references: [id])
+  photos      TicketPhoto[]
+  comments    TicketComment[]
+  assignments TicketAssignment[]
+
+  @@index([unitId, status])
+  @@index([reporterId])
+  @@index([status, priority])
+  @@index([slaAckDeadline])
+  @@index([slaResolveDeadline])
+  @@map("tickets")
+}
+
+model TicketPhoto {
+  id         String   @id @default(cuid())
+  ticketId   String   @map("ticket_id")
+  url        String
+  s3Key      String   @map("s3_key")
+  caption    String?
+  orderIndex Int      @default(0) @map("order_index")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_photos")
+}
+
+model TicketComment {
+  id        String   @id @default(cuid())
+  ticketId  String   @map("ticket_id")
+  authorId  String   @map("author_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@map("ticket_comments")
+}
+
+model TicketAssignment {
+  id           String    @id @default(cuid())
+  ticketId     String    @map("ticket_id")
+  contractorId String    @map("contractor_id")
+  costEstimate Float?    @map("cost_estimate")
+  finalCost    Float?    @map("final_cost")
+  assignedAt   DateTime  @default(now()) @map("assigned_at")
+  completedAt  DateTime? @map("completed_at")
+
+  ticket     Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  contractor User   @relation("ContractorAssignment", fields: [contractorId], references: [id])
+
+  @@index([ticketId])
+  @@index([contractorId])
+  @@map("ticket_assignments")
+}
+
+model Document {
+  id           String       @id @default(cuid())
+  propertyId   String       @map("property_id")
+  uploadedById String       @map("uploaded_by_id")
+  name         String
+  type         DocumentType @default(OTHER)
+  mimeType     String       @map("mime_type")
+  size         Int
+  s3Key        String       @map("s3_key")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  property   Property @relation(fields: [propertyId], references: [id])
+  uploadedBy User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([propertyId, type])
+  @@index([uploadedById])
+  @@map("documents")
+}
